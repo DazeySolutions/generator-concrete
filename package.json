@@ -1,0 +1,33 @@
+{
+  "name": "generator-silverstripe",
+  "version": "0.0.3",
+  "description": "Yeoman generator for a Silverstripe CMS project",
+  "license": "MIT",
+  "main": "app/index.js",
+  "repository": "DazeySolutions/generator-silverstripe",
+  "author": {
+    "name": "Mark Dazey",
+    "email": "mark@dazeysolutions.com",
+    "url": "https://github.com/DazeySolutions"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "files": [
+    "app"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "silverstripe"
+  ],
+  "dependencies": {
+    "chalk": "^1.0.0",
+    "underscore.string": "^2.4.0",
+    "yeoman-generator": "^0.18.0",
+    "yosay": "^0.3.0"
+  },
+  "devDependencies": {},
+  "peerDependencies": {
+    "yo": ">=1.0.0"
+  }
+}
