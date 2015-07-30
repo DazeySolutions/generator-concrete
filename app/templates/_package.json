@@ -1,7 +1,10 @@
 {
-  "name": "FlatMate",
-  "version": "0.0.1",
+  "name": "<%= projectName %>",
+  "version": "<%= projectVersion %>",
   "description": "Concrete 5 theme",
+  "authors": [
+    "<%= yourName %> <<%= yourEmail %>>"
+  ],
   "private": true,
   "devDependencies": {
     "gulp": "latest",

@@ -113,12 +113,20 @@ module.exports = yeoman.generators.Base.extend({
 	
     this.log(chalk.green('Copying core project files...'));
 	this.copy('_concrete-excludes.txt', tempDir + 'concrete-excludes.txt');
-	this.template('_bower.json', this.srcThemeDir + 'bower.json', {
+	this.template('_bower.json', tempDir + 'bower.json', {
       projectName: this.projectName,
+      projectVersion: this.projectVersion,
+      yourEmail: this.yourEmail,
+      yourName: this.yourName
+    });
+    this.template('_package.json', tempDir + 'package.json', {
+      projectName: this.projectName,
+      projectVersion: this.projectVersion,
       yourEmail: this.yourEmail,
       yourName: this.yourName
     });
 	this.copy('_frontend-boilerplate-excludes.txt', tempDir + 'frontend-boilerplate-excludes.txt');
+	this.copy('_gulpfile.js', tempDir + 'gulpfile.js');
     // Core project files
     this.template('_gitignore', webRoot + '.gitignore');
     this.copy('gitattributes', webRoot + '.gitattributes');
@@ -221,6 +229,33 @@ module.exports = yeoman.generators.Base.extend({
           ],
           msg: 'Moving required frontend-boilerplate files...'
         });
+        
+        this.tasks.push({
+			cmd: 'cp',
+			args: [
+				tempDir+'bower.json',
+				this.srcThemeDir+'bower.json'
+			],
+			msg: 'Copying bower.json...'
+        });
+
+		this.tasks.push({
+			cmd: 'cp',
+			args: [
+				tempDir+'package.json',
+				this.srcThemeDir+'package.json'
+			],
+			msg: 'Copying package.json...'
+        });
+
+		this.tasks.push({
+			cmd: 'cp',
+			args: [
+				tempDir+'gulpfile.js',
+				this.srcThemeDir+'gulpfile.js'
+			],
+			msg: 'Copying gulpfile...'
+        });
 
         // npm install
         this.tasks.push({
@@ -244,12 +279,12 @@ module.exports = yeoman.generators.Base.extend({
 
         // Grunt build
         this.tasks.push({
-          cmd: 'grunt',
-          args: [],
+          cmd: 'gulp',
+          args: ['dev'],
           opts: {
             cwd: this.srcThemeDir
           },
-          msg: 'Building the theme...'
+          msg: 'Initial build for the theme...'
         });
 
         /* Start the tasks */
@@ -260,14 +295,14 @@ module.exports = yeoman.generators.Base.extend({
 
         this.createSymlinks = function () {
           this.log(chalk.green('Creating shared directory symlinks...'));
-          this.spawnCommand('ln', ['-s', '../' + srcThemesDir], { cwd: webRootThemesDir });
+          this.spawnCommand('ln', ['-s', '../' + this.srcThemesDir], { cwd: webRootThemesDir });
 
-        }
+        };
 
         this.cleanUp = function () {
           this.log(chalk.green('Cleaning up...'));
           this.spawnCommand('rm', ['-rf', tempDir]);
-        }
+        };
 
       }
     });
