@@ -1,0 +1,15 @@
+{
+  "name": "FlatMate",
+  "version": "0.0.1",
+  "description": "Concrete 5 theme",
+  "private": true,
+  "devDependencies": {
+    "gulp": "latest",
+    "gulp-less": "latest",
+    "gulp-minify-css": "latest",
+    "gulp-jshint": "latest",
+    "jshint-stylish": "latest",
+    "del": "latest",
+    "less-plugin-clean-css": "latest"
+  }
+}

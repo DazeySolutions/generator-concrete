@@ -9,20 +9,16 @@ var _s = require('underscore.string');
 
 /* Vars */
 
-var sharedDir = 'shared/';
-var trackedDir = 'site/';
 var tempDir = '.tmp/';
-var webRoot = trackedDir + 'public_html/';
-var webRootThemesDir = webRoot + 'themes/';
-var srcThemesDir = trackedDir + 'themes/';
-var srcThemeDistDir = 'dist/';
-var srcThemeTemplatesDir = 'templates/';
-var silverstripeRepo = 'https://github.com/silverstripe/silverstripe-installer.git';
-var tempSilverstripeInstallerDir = tempDir + 'silverstripe-installer/';
-var gruntFrontendBoilerplateRepo = 'https://github.com/DazeySolutions/grunt-frontend-boilerplate.git';
-var tempGruntFrontendBoilerplateDir = tempDir + 'grunt-frontend-boilerplate/';
-var itcssBoilerplateRepo = 'https://github.com/gpmd/itcss-boilerplate.git';
-var tempItcssBoilerplateDir = tempDir + 'itcss-boilerplate/';
+var webRoot = 'public_html/';
+var application = 'application/';
+var webRootThemesDir = webRoot + application + 'themes/';
+var webRootBlocksDir = webRoot + application + 'blocks/';
+var concreteGITRepo = 'https://github.com/DazeySolutions/concrete.git';
+var tempConcreteRepo = tempDir + 'concrete/';
+var themeBoilerplateRepo = 'https://github.com/DazeySolutions/frontend-boilerplate.git';
+var tempFrontendBoilerplateDir = tempDir + 'theme/';
+var srcThemesDir = 'themes/';
 var successMessage = 'Done';
 
 module.exports = yeoman.generators.Base.extend({
@@ -36,7 +32,7 @@ module.exports = yeoman.generators.Base.extend({
     var done = this.async();
 
     this.log(yosay(
-      'Welcome to the Yeoman ' + chalk.blue('Silverstripe') + ' generator!'
+      'Welcome to the Yeoman ' + chalk.blue('Concrete 5') + ' generator!'
     ));
 
     /* User defined data */
@@ -53,33 +49,38 @@ module.exports = yeoman.generators.Base.extend({
       default: '0.0.1'
     }, {
       type: 'input',
+      name: 'concreteVersion',
+      message: 'Enter Concrete Version',
+      default: '5.7.4.2'
+    }, {
+      type: 'input',
+      name: 'yourName',
+      message: 'Enter your name',
+      default: 'Mark Dazey'
+    }, {
+      type: 'input',
       name: 'yourEmail',
       message: 'Enter your email',
       default: 'mark@dazeysolutions.com'
     }, {
       type: 'input',
-      name: 'silverstripeVersion',
-      message: 'Enter SilverStripe Version',
-      default: '3.1.12'
-    }, {
-      type: 'input',
-      name: 'silverstripeDbHost',
-      message: 'Enter SilverStripe Database Host',
+      name: 'dbHost',
+      message: 'Enter Database Host',
       default: '127.0.0.1'
     }, {
       type: 'input',
-      name: 'silverstripeDbName',
-      message: 'Enter SilverStripe Database Name',
-      default: 'ss_db'
+      name: 'dbName',
+      message: 'Enter Database Name',
+      default: 'db'
     }, {
       type: 'input',
-      name: 'silverstripeDbUsername',
-      message: 'Enter SilverStripe Database Username',
-      default: 'ss_user'
+      name: 'dbUser',
+      message: 'Enter Database Username',
+      default: 'user'
     }, {
       type: 'input',
-      name: 'silverstripeDbPassword',
-      message: 'Enter SilverStripe Database Password',
+      name: 'dbPassword',
+      message: 'Enter Database Password',
       default: 'p@s$w0rd'
     }];
 
@@ -88,12 +89,13 @@ module.exports = yeoman.generators.Base.extend({
       this.projectName = props.projectName;
       this.projectVersion = props.projectVersion;
       this.yourEmail = props.yourEmail;
-      this.silverstripeVersion = props.silverstripeVersion;
-      this.silverstripeDbHost = props.silverstripeDbHost;
-      this.silverstripeDbName = props.silverstripeDbName;
-      this.silverstripeDbUsername = props.silverstripeDbUsername;
-      this.silverstripeDbPassword = props.silverstripeDbPassword;
+      this.yourName = props.yourName;
+      this.dbHost = props.dbHost;
+      this.dbName = props.dbName;
+      this.dbUser = props.dbUser;
+      this.dbPassword = props.dbPassword;
       this.srcThemeDir = srcThemesDir + props.projectName + '/';
+      this.concreteVersion = props.concreteVersion;
       done();
     }.bind(this));
   },
@@ -103,48 +105,27 @@ module.exports = yeoman.generators.Base.extend({
     /* Create core directories */
 
     this.log(chalk.green('Creating core directories...'));
-    this.mkdir(sharedDir + 'assets/Uploads');
-    this.mkdir(sharedDir + 'silverstripe-cache');
-    this.mkdir(webRoot + 'themes');
-    this.mkdir(this.srcThemeDir + srcThemeDistDir);
-    this.mkdir(this.srcThemeDir + srcThemeTemplatesDir + 'Widgets');
+    this.mkdir(this.srcThemeDir);
+    this.mkdir(webRoot);
     this.log(chalk.green.bold(successMessage));
 
     /* Copy core files */
-
+	
     this.log(chalk.green('Copying core project files...'));
-
-    // Core project files
-    this.copy('_silverstripe-excludes.txt', tempDir + 'silverstripe-excludes.txt');
-    this.template('__ss_environment.php', sharedDir + '_ss_environment.php', {
+	this.copy('_concrete-excludes.txt', tempDir + 'concrete-excludes.txt');
+	this.template('_bower.json', this.srcThemeDir + 'bower.json', {
       projectName: this.projectName,
       yourEmail: this.yourEmail,
-      silverstripeDbHost: this.silverstripeDbHost,
-      silverstripeDbName: this.silverstripeDbName,
-      silverstripeDbUsername: this.silverstripeDbUsername,
-      silverstripeDbPassword: this.silverstripeDbPassword,
-      webRoot: webRoot
+      yourName: this.yourName
     });
-    this.template('_composer.json', webRoot + 'composer.json');
-    this.copy('_grunt-frontend-boilerplate-excludes.txt', tempDir + 'grunt-frontend-boilerplate-excludes.txt');
-    this.copy('_itcss-boilerplate-excludes.txt', tempDir + 'itcss-boilerplate-excludes.txt');
+	this.copy('_frontend-boilerplate-excludes.txt', tempDir + 'frontend-boilerplate-excludes.txt');
+    // Core project files
     this.template('_gitignore', webRoot + '.gitignore');
     this.copy('gitattributes', webRoot + '.gitattributes');
     this.template('_bower.json', this.srcThemeDir + 'bower.json');
     this.copy('bowerrc', this.srcThemeDir + '.bowerrc');
     this.copy('jshintrc', this.srcThemeDir + '.jshintrc');
     this.copy('editorconfig', this.srcThemeDir + '.editorconfig');
-
-    // Silverstripe theme files
-    this.copy('_Page.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Page.ss');
-    this.copy('_PageLayout.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Layout/Page.ss');
-    this.copy('_Footer.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Includes/Footer.ss');
-    this.copy('_GoogleAnalytics.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Includes/GoogleAnalytics.ss');
-    this.copy('_Head.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Includes/Head.ss');
-    this.copy('_Header.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Includes/Header.ss');
-    this.copy('_Navigation.ss', this.srcThemeDir + srcThemeTemplatesDir + 'Includes/Navigation.ss');
-    this.copy('_favicon-16x16.png', webRoot + 'favicon-16x16.png');
-    this.copy('_editor.scss', tempDir + 'editor.scss');
 
     this.log(chalk.green.bold(successMessage));
   },
@@ -192,86 +173,53 @@ module.exports = yeoman.generators.Base.extend({
         // Prep
         this.tasks = [];
 
-        // Clone silverstripe repo
+        // Clone concrete repo
         this.tasks.push({
           cmd: 'git',
           args: [
             'clone',
-            silverstripeRepo,
-            tempSilverstripeInstallerDir
+            concreteGITRepo,
+            tempConcreteRepo
           ],
-          msg: 'Cloning silverstripe-installer repo...'
+          msg: 'Cloning concrete repo...'
         });
+        
 
-        // Move silverstripe files
+        // Move concrete files
         this.tasks.push({
           cmd: 'rsync',
           args: [
             '-vaz',
             '--exclude-from',
-            tempDir + 'silverstripe-excludes.txt',
-            tempSilverstripeInstallerDir,
+            tempDir + 'concrete-excludes.txt',
+            tempConcreteRepo,
             webRoot
           ],
-          msg: 'Moving required silverstripe-installer files...'
+          msg: 'Moving required concrete files...'
         });
 
-        // Clone grunt-frontend-boilerplate repo
+        // Clone frontend-boilerplate repo
         this.tasks.push({
           cmd: 'git',
           args: [
             'clone',
-            gruntFrontendBoilerplateRepo,
-            tempGruntFrontendBoilerplateDir
+            themeBoilerplateRepo,
+            tempFrontendBoilerplateDir
           ],
-          msg: 'Cloning grunt-frontend-boilerplate repo...'
+          msg: 'Cloning frontend-boilerplate repo...'
         });
 
-        // Move grunt-frontend-boilerplate files
+        // Move frontend-boilerplate files
         this.tasks.push({
           cmd: 'rsync',
           args: [
             '-vaz',
             '--exclude-from',
-            tempDir + 'grunt-frontend-boilerplate-excludes.txt',
-            tempGruntFrontendBoilerplateDir,
+            tempDir + 'frontend-boilerplate-excludes.txt',
+            tempFrontendBoilerplateDir,
             this.srcThemeDir
           ],
-          msg: 'Moving required grunt-frontend-boilerplate files...'
-        });
-
-        // Clone itcss-boilerplate repo
-        this.tasks.push({
-          cmd: 'git',
-          args: [
-            'clone',
-            itcssBoilerplateRepo,
-            tempItcssBoilerplateDir
-          ],
-          msg: 'Cloning itcss-boilerplate repo...'
-        });
-
-        // Move itcss-boilerplate files
-        this.tasks.push({
-          cmd: 'rsync',
-          args: [
-            '-vaz',
-            '--exclude-from',
-            tempDir + 'itcss-boilerplate-excludes.txt',
-            tempItcssBoilerplateDir,
-            this.srcThemeDir + 'src/scss/'
-          ],
-          msg: 'Moving required itcss-boilerplate files...'
-        });
-
-        // Move editor.scss
-        this.tasks.push({
-          cmd: 'cp',
-          args: [
-            tempDir + 'editor.scss',
-            this.srcThemeDir + 'src/scss/editor.scss'
-          ],
-          msg: 'Moving SilverStripe editor.scss...'
+          msg: 'Moving required frontend-boilerplate files...'
         });
 
         // npm install
@@ -304,16 +252,6 @@ module.exports = yeoman.generators.Base.extend({
           msg: 'Building the theme...'
         });
 
-        // composer install
-        this.tasks.push({
-          cmd: 'composer',
-          args: ['install'],
-          opts: {
-            cwd: webRoot
-          },
-          msg: 'Installing SilverStripe dependencies...'
-        });
-
         /* Start the tasks */
 
         this.processTask(this.tasks.shift());
@@ -322,18 +260,8 @@ module.exports = yeoman.generators.Base.extend({
 
         this.createSymlinks = function () {
           this.log(chalk.green('Creating shared directory symlinks...'));
-          this.spawnCommand('ln', ['-s', '../../' + sharedDir + 'assets', 'assets'], { cwd: webRoot });
-          this.spawnCommand('ln', ['-s', '../../' + sharedDir + 'silverstripe-cache', 'silverstripe-cache'], { cwd: webRoot });
-          this.spawnCommand('ln', ['-s', '../../' + sharedDir + '_ss_environment.php', '_ss_environment.php'], { cwd: webRoot });
+          this.spawnCommand('ln', ['-s', '../' + srcThemesDir], { cwd: webRootThemesDir });
 
-          this.log(chalk.green('Creating theme directory symlinks...'));
-          this.spawnCommand('ln', ['-s', '../../../' + this.srcThemeDir + srcThemeDistDir, this.projectName], { cwd: webRootThemesDir });
-          this.spawnCommand('ln', ['-s', '../' + srcThemeTemplatesDir + '.', _s.rtrim(srcThemeTemplatesDir, '/')], { cwd: this.srcThemeDir + srcThemeDistDir });
-        }
-
-        this.setSharedPermissions = function () {
-          this.log(chalk.green('Setting shared directory permissions...'));
-          this.spawnCommand('chmod', ['-R', 'a+rwx', sharedDir + 'assets', sharedDir + 'silverstripe-cache']);
         }
 
         this.cleanUp = function () {
