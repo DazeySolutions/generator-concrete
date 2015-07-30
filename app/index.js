@@ -170,7 +170,6 @@ module.exports = yeoman.generators.Base.extend({
             this.processTask(next);
           } else {
             this.createSymlinks();
-            this.setSharedPermissions();
             this.cleanUp();
             this.log(chalk.green.bold('Yo, all done!'));
           }
@@ -294,7 +293,7 @@ module.exports = yeoman.generators.Base.extend({
         /* Finish and clean up */
 
         this.createSymlinks = function () {
-          this.log(chalk.green('Creating shared directory symlinks...'));
+          this.log(chalk.green('Creating directory symlinks...'));
           this.spawnCommand('ln', ['-s', '../' + this.srcThemesDir], { cwd: webRootThemesDir });
 
         };
